@@ -26,21 +26,30 @@ export default {
       { id: 2, text: 'Пока', response: 'До свидания! Приходите ещё!' }
     ];
 
-    const chatMessages = ref(null); // Референс на элемент с сообщениями
+    const chatMessages = ref(null);
 
     const selectOption = async (option) => {
-      messages.value.push({ text: option.text, user: 'user' });
+      const userMessage = option.text;
+      messages.value.push({ text: userMessage, user: 'user', isTyping: true });
+
+      for (let i = 0; i < userMessage.length; i++) {
+        await new Promise(resolve => setTimeout(resolve, 100)); // Задержка между символами
+        messages.value[messages.value.length - 1].text = userMessage.slice(0, i + 1);
+      }
+
+      messages.value[messages.value.length - 1].isTyping = false;
 
       // Анимация печатания для бота
       messages.value.push({ text: '...', user: 'bot', isTyping: true });
-      await new Promise(resolve => setTimeout(resolve, 500));
+      await new Promise(resolve => setTimeout(resolve, 2000));
 
-      messages.value.pop(); // Удаляем многоточие
+      messages.value.pop();
 
       messages.value.push({ text: option.response, user: 'bot' });
 
-      scrollToBottom(); // Прокрутка чата вниз
+      scrollToBottom();
     };
+
 
     const scrollToBottom = () => {
       if (chatMessages.value) {
@@ -51,7 +60,7 @@ export default {
     messages.value.push({ text: 'Здравствуйте! Чем я могу вам помочь?', user: 'bot' });
 
     onMounted(() => {
-      scrollToBottom(); // Прокрутка вниз при загрузке компонента
+      scrollToBottom();
     });
 
     return {
@@ -74,20 +83,24 @@ $primary-hover-color: #45a049;
 .chat-widget {
   width: 100%;
   max-width: 400px;
-  max-height: 500px;
+  height: 500px;
   border: 1px solid #ccc;
   border-radius: 5px;
   overflow: hidden;
   display: flex;
   flex-direction: column;
   margin: 0 auto;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 
   .chat-messages {
     flex: 1;
     overflow-y: scroll;
     padding: 10px;
-
+    background-color:rgb(255, 255, 255);
     .message-container {
       display: flex;
       flex-direction: column;
@@ -142,9 +155,3 @@ $primary-hover-color: #45a049;
   }
 }
 </style>
-
-
-
-
-
-
